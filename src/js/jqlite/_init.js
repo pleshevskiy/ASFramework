@@ -15,9 +15,13 @@ function ASJqLite(selector) {
     $.extend(this, elements);
     this.length = elements.length;
 }
+
+
 function $(selector) {
     return new ASJqLite(selector);
 }
+
+
 $.each = function (object, iterator, context) {
     if (_isLikeArray(object)) {
         for (var i = 0, max = object.length; i < max; ++i) {
@@ -29,6 +33,8 @@ $.each = function (object, iterator, context) {
         }
     }
 };
+
+
 $.extend = function (target) {
     $.each(_slice(arguments, 0), function (obj) {
         if (obj == null) return;
@@ -41,9 +47,7 @@ $.extend = function (target) {
     return target;
 };
 
-
 $.fn = {
-    jquery: 'ASJqLite 1.0',
     each: function (iterator) {
         $.each(this, function (el, i) {
             iterator.call(el, i, el, this);
@@ -57,4 +61,9 @@ $.fn = {
     }
 };
 
-$.extend(ASJqLite.prototype, $.fn);
+ASJqLite.prototype = $.extend($.fn, {
+    // config
+    jquery: 'ASJqLite',
+    version: '1.0.0'
+    
+});
