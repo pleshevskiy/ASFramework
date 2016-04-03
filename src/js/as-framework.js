@@ -10,16 +10,7 @@
     // BUILD AS-Framework:
     // +include as/init
     // +include as/classes/fixed
-
-    $(function () { AS();});
-
-    $(document).on('scroll', function (evt) {
-        AS().each(function () {
-            if (_isFunction(this.onScroll)) this.onScroll();
-        });
-        console.log(window.pageXOffset, window.pageYOffset);
-    });
-
+    // +include as/bind
 
     window.$ = $;
     window.AS = AS;
