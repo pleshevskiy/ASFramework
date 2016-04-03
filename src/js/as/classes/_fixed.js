@@ -14,9 +14,7 @@ $.extend(FixedItem.prototype, {
     }
 });
 
-AS.class.FixedItem = FixedItem;
-
-AS.setDefaultSettings(FixedItem.alias, {
+AS.setDefaultSettings(FixedItem, {
     scrollX: false,
     scrollTop: 0
 });

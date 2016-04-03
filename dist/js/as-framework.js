@@ -29,9 +29,13 @@
         $.extend(this, elements);
         this.length = elements.length;
     }
+    
+    
     function $(selector) {
         return new ASJqLite(selector);
     }
+    
+    
     $.each = function (object, iterator, context) {
         if (_isLikeArray(object)) {
             for (var i = 0, max = object.length; i < max; ++i) {
@@ -43,6 +47,8 @@
             }
         }
     };
+    
+    
     $.extend = function (target) {
         $.each(_slice(arguments, 0), function (obj) {
             if (obj == null) return;
@@ -55,9 +61,7 @@
         return target;
     };
     
-    
     $.fn = {
-        jquery: 'ASJqLite 1.0',
         each: function (iterator) {
             $.each(this, function (el, i) {
                 iterator.call(el, i, el, this);
@@ -71,7 +75,12 @@
         }
     };
     
-    $.extend(ASJqLite.prototype, $.fn);
+    ASJqLite.prototype = $.extend($.fn, {
+        // config
+        jquery: 'ASJqLite',
+        version: '1.0.0'
+        
+    });
     
     var hasAddEventListener = _isFunction(document.addEventListener);
     
@@ -161,7 +170,9 @@
             });
         }
     });
-    
+    /*
+    * @param (
+    * */
     function _getComputedStyle(el) {
         // Support: IE<=11+, Firefox<=30+ (#15098, #14150)
         // IE throws on elements created in popups
@@ -200,15 +211,26 @@
     });
     //
     // BUILD AS-Framework:
-    
     var supportStyleForConfig = ['height', 'width'];
+    
+    /**
+     * @param {string=} selector
+     * @return {ASJqLite}
+     * */
     function _find(selector) {
         return $(('.[').indexOf(selector[0]) > -1 ? selector : '[as-' + selector + '],[data-as-' + selector + ']');
     }
+    
+    
+    /**
+     * @param {object} element
+     * @param {Array=} list - Список конфигураций из атрибута для элемента
+     * @return {object} Просчитанный пользовательный объект конфигураций.
+     * */
     function _calculateConfig(element, list) {
         var obj = {};
         var computed = _getComputedStyle(element);
-        $.each(list, function (item, i) {
+        $.each(list, function (item) {
             var parts = item.split(':');
             var name = _toCamelCase(parts[0]);
             var value = parts[1] || true;
@@ -225,22 +247,26 @@
         return obj;
     }
     
-    function _getConfig(element, key) {
+    /**
+     * @param {object} element
+     * @param {string=} classAlias
+     * @return {object} Полный конфиг для элемента
+     * */
+    function _getConfig(element, classAlias) {
         var _key;
-        var attr = element.getAttribute(_key = ('as-' + key)) || element.getAttribute(_key = ('data-as-' + key));
+        var attr = element.getAttribute(_key = ('as-' + classAlias)) || element.getAttribute(_key = ('data-as-' + classAlias));
         var configList = attr == null ? [] : attr.split(' ');
         element.setAttribute(_key, '');
-        return $.extend(_calculateConfig(element, configList), AS.config[key] || {}, _default[key] || {});
+        return $.extend(_calculateConfig(element, configList), AS.config[classAlias] || {}, _default[classAlias] || {});
     }
     
-    
-    /* AS-Class */
+    /* ASClass */
     ASClass.instance = null;
     function ASClass() {
         if (ASClass.instance != null) return ASClass.instance;
         ASClass.instance = this;
     
-        $.each(AS.class, function (_Class) {
+        $.each(_classes, function (_Class) {
             var alias = _Class.alias;
             var list = this['$' + alias] = new ASList();
             _find(alias).each(function () {
@@ -250,8 +276,12 @@
     }
     
     $.extend(ASClass.prototype, {
+        /**
+         * @description Перебирает каждый каждый привязанный класс
+         * @param {function(int, object)} iterator - Перебирает каждый элемент в классе.
+         * */
         each: function (iterator) {
-            $.each(AS.class, function (_Class) {
+            $.each(_classes, function (_Class) {
                 AS(_Class.alias).each(iterator);
             });
         }
@@ -280,16 +310,18 @@
         return _as;
     }
     
-    AS.setDefaultSettings = function (aliase, config) {
-        if (_default[aliase] != null) {
-            console.error('That ' + aliase + ' already used');
+    AS.setDefaultSettings = function (_Class, config) {
+        var alias = _Class.alias;
+        if (_default[alias] != null) {
+            console.error('That ' + alias + ' already used');
             return;
         }
-        _default[aliase] = config;
+        _classes[alias] = _Class;
+        _default[alias] = config;
     };
     
+    var _classes = {};
     var _default = {};
-    AS.class  = {};
     AS.config = {};
     FixedItem.alias = 'fixed';
     function FixedItem($el, config) {
@@ -307,22 +339,21 @@
         }
     });
     
-    AS.class.FixedItem = FixedItem;
-    
-    AS.setDefaultSettings(FixedItem.alias, {
+    AS.setDefaultSettings(FixedItem, {
         scrollX: false,
         scrollTop: 0
     });
-
-    $(function () { AS();});
-
-    $(document).on('scroll', function (evt) {
+    $(function () {
+        // initial ASFramework after DOM ready
+        AS();
+    });
+    
+    // BIND scroll event
+    $(document).on('scroll', function () {
         AS().each(function () {
             if (_isFunction(this.onScroll)) this.onScroll();
         });
-        console.log(window.pageXOffset, window.pageYOffset);
     });
-
 
     window.$ = $;
     window.AS = AS;

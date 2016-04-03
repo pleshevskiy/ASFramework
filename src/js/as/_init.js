@@ -53,7 +53,7 @@ function ASClass() {
     if (ASClass.instance != null) return ASClass.instance;
     ASClass.instance = this;
 
-    $.each(AS.class, function (_Class) {
+    $.each(_classes, function (_Class) {
         var alias = _Class.alias;
         var list = this['$' + alias] = new ASList();
         _find(alias).each(function () {
@@ -68,7 +68,7 @@ $.extend(ASClass.prototype, {
      * @param {function(int, object)} iterator - Перебирает каждый элемент в классе.
      * */
     each: function (iterator) {
-        $.each(AS.class, function (_Class) {
+        $.each(_classes, function (_Class) {
             AS(_Class.alias).each(iterator);
         });
     }
@@ -97,14 +97,16 @@ function AS(selector) {
     return _as;
 }
 
-AS.setDefaultSettings = function (aliase, config) {
-    if (_default[aliase] != null) {
-        console.error('That ' + aliase + ' already used');
+AS.setDefaultSettings = function (_Class, config) {
+    var alias = _Class.alias;
+    if (_default[alias] != null) {
+        console.error('That "' + alias + '" already used');
         return;
     }
-    _default[aliase] = config;
+    _classes[alias] = _Class;
+    _default[alias] = config;
 };
 
+var _classes = {};
 var _default = {};
-AS.class  = {};
 AS.config = {};
