@@ -2,7 +2,7 @@ var gulp   = require('gulp');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var smaps  = require('gulp-sourcemaps');
-var include = require('./libs/gulp-include');
+var include = require('./libs/gulp-include-lite');
 
 gulp.task('build-js', function () {
     gulp.src('src/js/as-framework.js')
